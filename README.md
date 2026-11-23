@@ -11,7 +11,7 @@ One service built from this repo's `Dockerfile`:
 - the official `github-mcp-server` binary (copied from the pinned upstream image), started with `github-mcp-server http` on `127.0.0.1:8082`;
 - [Caddy](https://caddyserver.com) 2.11.9 on Railway's `PORT`, which lets a request through only with `Authorization: Bearer $MCP_AUTH_TOKEN` and then replaces that header with your GitHub token. `/healthz` answers 200 without a token (Railway's health check).
 
-`start.sh` exits non-zero when either process stops, so Railway's restart policy brings the service back. The server is stateless: no volume, no database. Idle RAM is about 40 MB; it runs on Railway's smallest plan (0.5 GB).
+`start.sh` exits non-zero when either process stops, so Railway's restart policy brings the service back. The server is stateless: no volume, no database. Idle RAM is about 85 MB (server plus Caddy); it runs on Railway's smallest plan (0.5 GB).
 
 ## Variables
 

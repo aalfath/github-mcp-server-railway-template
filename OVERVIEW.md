@@ -4,7 +4,7 @@ GitHub MCP Server is GitHub's official Model Context Protocol server. It gives A
 
 ## About Hosting GitHub MCP Server
 
-This template builds one service from a public repo: GitHub's official `github-mcp-server` v2.2.0 binary, pinned by digest, listening only on loopback, with a small Caddy front on Railway's `PORT`. Caddy lets a request through only when it carries the generated `MCP_AUTH_TOKEN` as a bearer token, then swaps in your GitHub token, so the GitHub token never leaves the server and the public URL is never open. You paste one value at deploy time: a GitHub personal access token. The server keeps no data, so it needs no volume or database. It uses about 40 MB of RAM and fits Railway's smallest plan.
+This template builds one service from a public repo: GitHub's official `github-mcp-server` v2.2.0 binary, pinned by digest, listening only on loopback, with a small Caddy front on Railway's `PORT`. Caddy lets a request through only when it carries the generated `MCP_AUTH_TOKEN` as a bearer token, then swaps in your GitHub token, so the GitHub token never leaves the server and the public URL is never open. You paste one value at deploy time: a GitHub personal access token. The server keeps no data, so it needs no volume or database. It uses under 100 MB of RAM and fits the 0.5 GB of Railway's smallest plan.
 
 ## Common Use Cases
 
