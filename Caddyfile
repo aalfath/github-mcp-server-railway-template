@@ -11,14 +11,18 @@
 	# Health check for Railway: answers 200 from the MCP server itself, no login needed.
 	handle /healthz {
 		rewrite * /.well-known/oauth-protected-resource
-		reverse_proxy 127.0.0.1:8082
+		reverse_proxy 127.0.0.1:8082 {
+			header_up Host 127.0.0.1:8082
+		}
 	}
 
 	# CORS preflight from browser-based MCP clients carries no token; the server
 	# answers it itself without running any tool.
 	@preflight method OPTIONS
 	handle @preflight {
-		reverse_proxy 127.0.0.1:8082
+		reverse_proxy 127.0.0.1:8082 {
+			header_up Host 127.0.0.1:8082
+		}
 	}
 
 	# Only clients that send the generated MCP_AUTH_TOKEN get through. Caddy then
@@ -27,6 +31,9 @@
 	handle @authed {
 		reverse_proxy 127.0.0.1:8082 {
 			header_up Authorization "Bearer {$GITHUB_PERSONAL_ACCESS_TOKEN}"
+			# The MCP SDK refuses non-loopback Host headers on a loopback listener
+			# (DNS-rebinding guard), so present the loopback host upstream.
+			header_up Host 127.0.0.1:8082
 			flush_interval -1
 		}
 	}
