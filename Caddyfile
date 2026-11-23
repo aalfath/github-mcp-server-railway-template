@@ -1,0 +1,38 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+	servers {
+		trusted_proxies static private_ranges 100.64.0.0/10
+	}
+}
+
+:{$PORT:8080} {
+	# Health check for Railway: answers 200 from the MCP server itself, no login needed.
+	handle /healthz {
+		rewrite * /.well-known/oauth-protected-resource
+		reverse_proxy 127.0.0.1:8082
+	}
+
+	# CORS preflight from browser-based MCP clients carries no token; the server
+	# answers it itself without running any tool.
+	@preflight method OPTIONS
+	handle @preflight {
+		reverse_proxy 127.0.0.1:8082
+	}
+
+	# Only clients that send the generated MCP_AUTH_TOKEN get through. Caddy then
+	# replaces it with the deployer's GitHub token, which never leaves the server.
+	@authed header Authorization "Bearer {$MCP_AUTH_TOKEN}"
+	handle @authed {
+		reverse_proxy 127.0.0.1:8082 {
+			header_up Authorization "Bearer {$GITHUB_PERSONAL_ACCESS_TOKEN}"
+			flush_interval -1
+		}
+	}
+
+	handle {
+		header WWW-Authenticate "Bearer realm=\"github-mcp-server\""
+		respond "Unauthorized: send Authorization: Bearer MCP_AUTH_TOKEN" 401
+	}
+}
